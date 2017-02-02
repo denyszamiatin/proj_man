@@ -1,69 +1,76 @@
+"""
+
+"""
+
+
 class Environment:
+    """
+    Main configuration
+    """
     def __init__(self):
-        self.projects_list = {}
+        self.projects = {}
         self.users = {}
 
-    def add_project(self, name, description):
-        try:
-            self.projects_list[name]
-        except KeyError:
-            self.projects_list[name] = Project(name, description)
-        else:
-            print('There is an existing project with such name. Use another one')
+    def add_project(self, project):
+        if project.name in self.projects:
+            raise KeyError(
+                'There is an existing project with such name. Use another one'
+            )
+        project.register_observer(self)
+        self.projects[project.name] = project
 
     def delete_project(self, name):
         try:
-            del(self.projects_list[name])
+            del self.projects[name]
         except KeyError:
-            print('There is no project with such name')
+            raise KeyError('There is no project with such name')
 
-    def create_user(self, name, password):
-        try:
-            self.users[name]
-        except KeyError:
-            self.users[name] = User(name, password)
-        else:
-            print('There is a user with such name. Use another one')
+    def add_user(self, user):
+        if user.name in self.users:
+            raise KeyError('There is a user with such name. Use another one')
+        self.users[user.name] = user
 
-    def delete_user(self, name, password):
+    def delete_user(self, name):
         try:
-            user_data = self.users[name]
+            del self.users[name]
         except KeyError:
-            print('There is no user with such name')
-        else:
-            if user_data.password == password:
-                del(self.users[name])
-            else:
-                print('Password is wrong. Try again.')
+            raise KeyError('There is no user with such name')
+
+    def notify(self, old_name, project):
+        print(self.projects, old_name)
+        self.delete_project(old_name)
+        self.add_project(project)
 
 
 class Project:
-    def __init__(self, name, description):
-        super().__init__()
+    def __init__(self, user, name, description):
         self.name = name
         self.description = description
         self.members = {}
+        self.owner = user
+        self.observers = []
 
-    def update_project_data(self, new_name, new_description):
-        """
-        Incorrect name in dict keys after project data update
-        """
-        self.name = new_name
-        self.description = new_description
+    def update_description(self, description):
+        self.description = description
 
-    def add_member(self, member_login, users):
+    def update_name(self, name):
+        old_name, self.name = self.name, name
+        for observer in self.observers:
+            print('Notify:', self.observers)
+            observer.notify(old_name, self)
+
+    def register_observer(self, observer):
+        if observer not in self.observers: #
+            self.observers.append(observer)
+
+    def add_member(self, user):
+        self.members[user.name] = user
+
+    def delete_member(self, name):
         try:
-            users[member_login]
+            del self.members[name]
         except KeyError:
-            print('You can not add the member. There is no user with such name')
-        else:
-            self.members[member_login] = users[member_login]
-
-    def delete_member(self, member_login):
-        try:
-            del(self.members[member_login])
-        except KeyError:
-            print('There is no user with such name')
+            raise KeyError('There is no user with such name')
 
 
 class User:
@@ -71,12 +78,16 @@ class User:
         self.login = login
         self.password = password
 
-    def change_credentials(self, old_password, new_login, new_password):
-        """
-        Incorrect name in dict keys after credentials update
-        """
-        if old_password == self.password:
-            self.login = new_login
-            self.password = new_password
-        else:
-            print('Password is wrong. Try again.')
+    def change_credentials(self, old_password, new_password):
+        if old_password != self.password:
+            raise ValueError('Password is wrong. Try again.')
+        self.password = new_password
+
+env = Environment()
+u = User('l', 'p')
+p = Project(u, 'pr1', 'aaaaa')
+print(1, env.projects)
+env.add_project(p)
+print(2, env.projects, p.observers)
+p.update_name('pr2')
+print(3, env.projects, p.observers)
