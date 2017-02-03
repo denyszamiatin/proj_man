@@ -94,7 +94,7 @@ with open("data_projects", "r") as f:
         env.add_project(Project(i.strip(), f.readline().strip(), f.readline().strip(), f.readline().strip().split(',')))
 
 for user in env.users:
-    print(env.users[user].email, env.users[user].login, )
+    print(env.users[user].email, env.users[user].login, env.users[user].password)
 for project in env.projects:
     print(env.projects[project].name, env.projects[project].description, env.projects[project].owner, env.projects[project].members)
 
