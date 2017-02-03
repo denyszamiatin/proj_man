@@ -26,9 +26,9 @@ class Environment:
             raise KeyError('There is no project with such name')
 
     def add_user(self, user):
-        if user.name in self.users:
+        if user.login in self.users:
             raise KeyError('There is a user with such name. Use another one')
-        self.users[user.name] = user
+        self.users[user.login] = user
 
     def delete_user(self, name):
         try:
@@ -74,20 +74,25 @@ class Project:
 
 
 class User:
-    def __init__(self, login, password):
+    def __init__(self, email, login, password):
+        self.email = email
         self.login = login
         self.password = password
 
-    def change_credentials(self, old_password, new_password):
+    def change_password(self, old_password, new_password):
         if old_password != self.password:
             raise ValueError('Password is wrong. Try again.')
         self.password = new_password
 
 env = Environment()
-u = User('l', 'p')
-p = Project(u, 'pr1', 'aaaaa')
-print(1, env.projects)
-env.add_project(p)
-print(2, env.projects, p.observers)
-p.update_name('pr2')
-print(3, env.projects, p.observers)
+with open("data_users", "r") as f:
+    for i in f:
+        env.add_user(User(i.strip(), f.readline().strip(), f.readline().strip()))
+
+print(env.users)
+
+with open("data_users", "w") as f:
+    for user in env.users:
+        f.write(env.users[user].email + "\n")
+        f.write(user + "\n")
+        f.write(env.users[user].password + "\n")
