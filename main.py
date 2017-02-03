@@ -43,11 +43,11 @@ class Environment:
 
 
 class Project:
-    def __init__(self, user, name, description):
+    def __init__(self, name, description, owner, members=[]):
         self.name = name
         self.description = description
-        self.members = {}
-        self.owner = user
+        self.members = members
+        self.owner = owner
         self.observers = []
 
     def update_description(self, description):
@@ -64,7 +64,7 @@ class Project:
             self.observers.append(observer)
 
     def add_member(self, user):
-        self.members[user.name] = user
+        self.members.append(user)
 
     def delete_member(self, name):
         try:
@@ -89,7 +89,26 @@ with open("data_users", "r") as f:
     for i in f:
         env.add_user(User(i.strip(), f.readline().strip(), f.readline().strip()))
 
-print(env.users)
+with open("data_projects", "r") as f:
+    for i in f:
+        env.add_project(Project(i.strip(), f.readline().strip(), f.readline().strip(), f.readline().strip().split(',')))
+
+for user in env.users:
+    print(env.users[user].email, env.users[user].login, env.users[user].password)
+for project in env.projects:
+    print(env.projects[project].name, env.projects[project].description, env.projects[project].owner, env.projects[project].members)
+
+with open("data_projects", "w") as f:
+    for project in env.projects:
+        f.write(project + "\n")
+        f.write(env.projects[project].description + "\n")
+        f.write(env.projects[project].owner + "\n")
+        for member in env.projects[project].members:
+            if member == env.projects[project].members[-1]:
+                f.write(member)
+            else:
+                f.write(member + ",")
+        f.write("\n")
 
 with open("data_users", "w") as f:
     for user in env.users:
