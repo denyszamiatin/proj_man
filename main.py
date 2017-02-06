@@ -3,13 +3,79 @@
 """
 
 
+class Database:
+    def __init__(self, users_file='data_users', projects_file='data_projects'):
+        self.users_file = users_file
+        self.projects_file = projects_file
+
+    def save_projects(self, projects):
+        with open(self.projects_file, "wt") as f:
+            for project in projects:
+                f.write(project.name + "\n")
+                f.write(project.description + "\n")
+                f.write(project.owner + "\n")
+                f.write(project.members.join(',') + "\n")
+
+    def save_users(self, users):
+        with open(self.users_file, "wt") as f:
+            for user in users:
+                f.write(user.email + "\n")
+                f.write(user.login + "\n")
+                f.write(user.password + "\n")
+
+    def _get_loader(self, item_type):
+        if item_type == 'user':
+            return self.users_file, self._load_user
+        elif item_type == 'project':
+            return self.projects_file, self._load_project
+        else:
+            raise ValueError("Invalid type")
+
+    def load_items(self, item_type):
+        filename, loader = self._get_loader(item_type)
+        items = []
+        try:
+            with open(filename, "rt") as f:
+                while True:
+                    item = loader(f)
+                    if not item:
+                        return items
+                    items.append(item)
+        except FileNotFoundError:
+            return items
+
+    def _strip_field(self, f):
+        return f.readline().strip()
+
+    def _load_user(self, f):
+        email = self._strip_field(f)
+        if not email:
+            return ()
+        login = self._strip_field(f)
+        password = self._strip_field(f)
+        return User(email, login, password)
+
+    def _load_project(self, f):
+        name = self._strip_field(f)
+        if not name:
+            return ()
+        description = self._strip_field(f)
+        owner = self._strip_field(f)
+        members = self._strip_field(f).split(',')
+        return Project(name, description, owner, members)
+
 class Environment:
     """
     Main configuration
     """
-    def __init__(self):
+    def __init__(self, db):
+        self.db = db
         self.projects = {}
         self.users = {}
+        for user in self.db.load_items('user'):
+            self.add_user(user)
+        for project in self.db.load_items('project'):
+            self.add_project(project)
 
     def add_project(self, project):
         if project.name in self.projects:
@@ -60,7 +126,7 @@ class Project:
             observer.notify(old_name, self)
 
     def register_observer(self, observer):
-        if observer not in self.observers: #
+        if observer not in self.observers:
             self.observers.append(observer)
 
     def add_member(self, user):
@@ -84,34 +150,4 @@ class User:
             raise ValueError('Password is wrong. Try again.')
         self.password = new_password
 
-env = Environment()
-with open("data_users", "r") as f:
-    for i in f:
-        env.add_user(User(i.strip(), f.readline().strip(), f.readline().strip()))
-
-with open("data_projects", "r") as f:
-    for i in f:
-        env.add_project(Project(i.strip(), f.readline().strip(), f.readline().strip(), f.readline().strip().split(',')))
-
-for user in env.users:
-    print(env.users[user].email, env.users[user].login, env.users[user].password)
-for project in env.projects:
-    print(env.projects[project].name, env.projects[project].description, env.projects[project].owner, env.projects[project].members)
-
-with open("data_projects", "w") as f:
-    for project in env.projects:
-        f.write(project + "\n")
-        f.write(env.projects[project].description + "\n")
-        f.write(env.projects[project].owner + "\n")
-        for member in env.projects[project].members:
-            if member == env.projects[project].members[-1]:
-                f.write(member)
-            else:
-                f.write(member + ",")
-        f.write("\n")
-
-with open("data_users", "w") as f:
-    for user in env.users:
-        f.write(env.users[user].email + "\n")
-        f.write(user + "\n")
-        f.write(env.users[user].password + "\n")
+env = Environment(Database())
