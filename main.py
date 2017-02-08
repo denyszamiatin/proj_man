@@ -1,72 +1,61 @@
 """
-Project Manager v: 0.3.1
+
 """
 import json
 
 
-
 class Database:
+    """
+    Methods to work with files
+    """
     def __init__(self, users_file='data_users', projects_file='data_projects'):
-        try:
-            storage = open('data.json')
-            self.data = json.load(storage)
-            storage.close()
-        except FileNotFoundError:
-            self.data = {}
+        self.users_file = users_file
+        self.projects_file = projects_file
 
-    def get_users(self):
-        return self.data["users"]
+    def save_projects(self, projects):
+        with open(self.projects_file, "wt") as f:
+            for project in projects:
+                f.write(json.dumps([project.name, project.description, project.owner, project.members]) + "\n")
 
-    def get_projects(self):
-        return self.data["projects"]
+    def save_users(self, users):
+        with open(self.users_file, "wt") as f:
+            for user in users:
+                f.write(json.dumps([user.email, user.login, user.password]) + "\n")
 
-    def add_project_to_db(self, project):
-        json_project_obj = {}
-        for property in project.__dict__.keys():
-            if property != 'observers':
-                json_project_obj[property] = getattr(project, property)
-
-        if not json_project_obj in self.get_users():
-            self.data["projects"].append(json_project_obj)
+    def _get_loader(self, item_type):
+        if item_type == 'user':
+            return self.users_file, self._load_user
+        elif item_type == 'project':
+            return self.projects_file, self._load_project
         else:
-            raise KeyError('The project already exist')
-        self.update_db()
+            raise ValueError("Invalid type")
 
-
-    def del_project_from_db(self, prj_name):
-        for prj in self.get_projects():
-            if prj_name == prj['name']:
-                self.data["projects"].remove(prj)
-
-        self.update_db()
-
-    def del_user_from_db(self, user_name):
-        for user in self.get_users():
-            if user_name == user['login']:
-                self.data["users"].remove(user)
-
-        self.update_db()
-
-    def add_user_to_db(self, user):
-        json_user_obj = {}
-        for property in user.__dict__.keys():
-            json_user_obj[property] = getattr(user, property)
-
-        if not json_user_obj in self.get_users():
-            self.data["users"].append(json_user_obj)
-        else:
-            raise KeyError('This name is used')
-        self.update_db()
-
-
-    def update_db(self):
+    def load_items(self, item_type):
+        filename, loader = self._get_loader(item_type)
+        items = []
         try:
-            storage = open('data.json', 'w')
-            json.dump(self.data, storage)
-            storage.close()
+            with open(filename, "rt") as f:
+                while True:
+                    item = loader(f)
+                    if not item:
+                        return items
+                    items.append(item)
         except FileNotFoundError:
-            return self.data
+            return items
 
+    def _load_user(self, f):
+        try:
+            user = json.loads(f.readline())
+        except json.decoder.JSONDecodeError:
+            return False
+        return User(*user)  # user is [email, login, password]
+
+    def _load_project(self, f):
+        try:
+            project = json.loads(f.readline())
+        except json.decoder.JSONDecodeError:
+            return False
+        return Project(*project)  # project is [name, description, owner, members]
 
 class Environment:
     """
@@ -76,12 +65,10 @@ class Environment:
         self.db = db
         self.projects = {}
         self.users = {}
-
-
-        for user in self.db.get_users():
-            self.users[user['login']] = User(user['email'], user['login'], user['password'])
-        for project in self.db.get_projects():
-            self.projects[project['name']] = Project(project['name'], project['description'], project['owner'], ['project.members'])
+        for user in self.db.load_items('user'):
+            self.add_user(user)
+        for project in self.db.load_items('project'):
+            self.add_project(project)
 
     def add_project(self, project):
         if project.name in self.projects:
@@ -91,34 +78,39 @@ class Environment:
         project.register_observer(self)
         self.projects[project.name] = project
 
-        self.db.add_project_to_db(project) #save projct to json file
-
     def delete_project(self, name):
         try:
             del self.projects[name]
         except KeyError:
             raise KeyError('There is no project with such name')
-        else:
-            self.db.del_project_from_db(name) #delete project from json file
 
     def add_user(self, user):
         if user.login in self.users:
             raise KeyError('There is a user with such name. Use another one')
         self.users[user.login] = user
-        self.db.add_user_to_db(user) #add user to json file
 
     def delete_user(self, name):
         try:
             del self.users[name]
         except KeyError:
             raise KeyError('There is no user with such name')
-        else:
-            self.db.del_user_from_db(name) #delete user from json file
 
     def notify(self, old_name, project):
         print(self.projects, old_name)
         self.delete_project(old_name)
         self.add_project(project)
+
+    def get_users(self):
+        users = []
+        for user in self.users:
+            users.append(self.users[user])
+        return users
+
+    def get_projects(self):
+        projects = []
+        for project in self.projects:
+            projects.append(self.projects[project])
+        return projects
 
 
 class Project:
@@ -164,3 +156,6 @@ class User:
         self.password = new_password
 
 env = Environment(Database())
+
+Database().save_users(env.get_users())
+Database().save_projects(env.get_projects())
