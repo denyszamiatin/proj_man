@@ -1,8 +1,4 @@
-pr1
-descr
-user1
-user1,user2
-pr2
-d
-user2
-user1,user2
+["pr1", "descr1", "user1", ["user2", "user3"]]
+["pr2", "descr2", "user2", ["user3", "user4"]]
+["pr3", "descr3", "user3", ["user4", "user1"]]
+["pr4", "descr4", "user4", ["user1", "user2"]]

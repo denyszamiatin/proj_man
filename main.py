@@ -1,9 +1,13 @@
 """
 
 """
+import json
 
 
 class Database:
+    """
+    Methods to work with files
+    """
     def __init__(self, users_file='data_users', projects_file='data_projects'):
         self.users_file = users_file
         self.projects_file = projects_file
@@ -11,17 +15,12 @@ class Database:
     def save_projects(self, projects):
         with open(self.projects_file, "wt") as f:
             for project in projects:
-                f.write(project.name + "\n")
-                f.write(project.description + "\n")
-                f.write(project.owner + "\n")
-                f.write(project.members.join(',') + "\n")
+                f.write(json.dumps([project.name, project.description, project.owner, project.members]) + "\n")
 
     def save_users(self, users):
         with open(self.users_file, "wt") as f:
             for user in users:
-                f.write(user.email + "\n")
-                f.write(user.login + "\n")
-                f.write(user.password + "\n")
+                f.write(json.dumps([user.email, user.login, user.password]) + "\n")
 
     def _get_loader(self, item_type):
         if item_type == 'user':
@@ -44,25 +43,19 @@ class Database:
         except FileNotFoundError:
             return items
 
-    def _strip_field(self, f):
-        return f.readline().strip()
-
     def _load_user(self, f):
-        email = self._strip_field(f)
-        if not email:
-            return ()
-        login = self._strip_field(f)
-        password = self._strip_field(f)
-        return User(email, login, password)
+        try:
+            user = json.loads(f.readline())
+        except json.decoder.JSONDecodeError:
+            return False
+        return User(*user)  # user is [email, login, password]
 
     def _load_project(self, f):
-        name = self._strip_field(f)
-        if not name:
-            return ()
-        description = self._strip_field(f)
-        owner = self._strip_field(f)
-        members = self._strip_field(f).split(',')
-        return Project(name, description, owner, members)
+        try:
+            project = json.loads(f.readline())
+        except json.decoder.JSONDecodeError:
+            return False
+        return Project(*project)  # project is [name, description, owner, members]
 
 class Environment:
     """
@@ -106,6 +99,18 @@ class Environment:
         print(self.projects, old_name)
         self.delete_project(old_name)
         self.add_project(project)
+
+    def get_users(self):
+        users = []
+        for user in self.users:
+            users.append(self.users[user])
+        return users
+
+    def get_projects(self):
+        projects = []
+        for project in self.projects:
+            projects.append(self.projects[project])
+        return projects
 
 
 class Project:
@@ -151,3 +156,6 @@ class User:
         self.password = new_password
 
 env = Environment(Database())
+
+Database().save_users(env.get_users())
+Database().save_projects(env.get_projects())
