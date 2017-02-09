@@ -21,7 +21,7 @@ class Database:
 
 
     def add_project_to_db(self, project):
-        json_project_obj = {atr : getattr(project, atr) for atr in project.__dict__.keys() if atr != 'observers'}
+        json_project_obj = {atr : getattr(project, atr) for atr in project.__dict__.keys()}
 
         if not json_project_obj in self.get_projects():
             self.data["projects"].append(json_project_obj)
@@ -140,7 +140,6 @@ class Project:
         self.description = description
         self.members = members
         self.owner = owner
-        self.observers = []
 
 
 class User:
