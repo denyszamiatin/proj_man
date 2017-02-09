@@ -3,6 +3,7 @@ Project Manager v: 0.4.1
 """
 import json
 
+
 class Database:
     def __init__(self, users_file='data_users', projects_file='data_projects'):
         try:
@@ -18,7 +19,6 @@ class Database:
 
     def get_projects(self):
         return self.data["projects"]
-
 
     def add_project_to_db(self, project):
         json_project_obj = {atr : getattr(project, atr) for atr in project.__dict__.keys()}
@@ -40,7 +40,6 @@ class Database:
 
         self.update_db()
 
-
     def del_project_from_db(self, prj_name):
         for prj in self.get_projects():
             if prj_name == prj['name']:
@@ -55,8 +54,6 @@ class Database:
 
         self.update_db()
 
-
-
     def update_project(self, name, property):
         for project in self.get_projects():
             if name == project['name'] and property[0] in project.keys():
@@ -64,15 +61,12 @@ class Database:
 
         self.update_db()
 
-
     def update_user(self, name, property):
         for user in self.get_users():
             if name == user['login'] and property[0] in user.keys():
                 user[property[0]] = property[1]
 
         self.update_db()
-
-
 
     def update_db(self):
         try:

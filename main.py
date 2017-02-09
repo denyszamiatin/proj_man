@@ -4,13 +4,11 @@ Project Manager v: 0.3.1
 import json
 
 
-
 class Database:
     def __init__(self, users_file='data_users', projects_file='data_projects'):
         try:
-            storage = open('data.json')
-            self.data = json.load(storage)
-            storage.close()
+            with open('data.json', "rt") as storage:
+                self.data = json.load(storage)
         except FileNotFoundError:
             self.data = {}
 
@@ -22,16 +20,15 @@ class Database:
 
     def add_project_to_db(self, project):
         json_project_obj = {}
-        for property in project.__dict__.keys():
+        for property in project.__dict__:
             if property != 'observers':
-                json_project_obj[property] = getattr(project, property)
+                json_project_obj[property] = project.__dict__[property]
 
         if not json_project_obj in self.get_users():
             self.data["projects"].append(json_project_obj)
         else:
             raise KeyError('The project already exist')
         self.update_db()
-
 
     def del_project_from_db(self, prj_name):
         for prj in self.get_projects():
@@ -76,7 +73,6 @@ class Environment:
         self.db = db
         self.projects = {}
         self.users = {}
-
 
         for user in self.db.get_users():
             self.users[user['login']] = User(user['email'], user['login'], user['password'])
