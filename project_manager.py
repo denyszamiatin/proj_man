@@ -1,80 +1,40 @@
 """
-Project Manager v: 0.4.1
+    Project Manager v: 0.6.1
 """
 import json
 
 
 class Database:
-    def __init__(self, users_file='data_users', projects_file='data_projects'):
-        try:
-            storage = open('data.json')
+    def __init__(self):
+        self.data = {}
+        self.connect_db()
+
+    def connect_db(self):
+        with open('data.json', 'r') as storage:
             self.data = json.load(storage)
-            storage.close()
-        except FileNotFoundError:
-            self.data = {}
-
-    def get_users(self):
-        return self.data["users"]
-
-
-    def get_projects(self):
-        return self.data["projects"]
-
-    def add_project_to_db(self, project):
-        json_project_obj = {atr : getattr(project, atr) for atr in project.__dict__.keys()}
-
-        if not json_project_obj in self.get_projects():
-            self.data["projects"].append(json_project_obj)
-        else:
-            raise KeyError('The project already exist')
-
-        self.update_db()
-
-    def add_user_to_db(self, user):
-        json_user_obj = {atr : getattr(user, atr) for atr in user.__dict__.keys()}
-
-        if not json_user_obj in self.get_users():
-            self.data["users"].append(json_user_obj)
-        else:
-            raise KeyError('This name is used')
-
-        self.update_db()
-
-    def del_project_from_db(self, prj_name):
-        for prj in self.get_projects():
-            if prj_name == prj['name']:
-                self.data["projects"].remove(prj)
-
-        self.update_db()
-
-    def del_user_from_db(self, user_name):
-        for user in self.get_users():
-            if user_name == user['login']:
-                self.data["users"].remove(user)
-
-        self.update_db()
-
-    def update_project(self, name, property):
-        for project in self.get_projects():
-            if name == project['name'] and property[0] in project.keys():
-                project[property[0]] = property[1]
-
-        self.update_db()
-
-    def update_user(self, name, property):
-        for user in self.get_users():
-            if name == user['login'] and property[0] in user.keys():
-                user[property[0]] = property[1]
-
-        self.update_db()
 
     def update_db(self):
-        try:
-            storage = open('data.json', 'w')
+        with open('data.json', 'w') as storage:
             json.dump(self.data, storage)
-            storage.close()
-        except FileNotFoundError:
-            return self.data
+
+    def update_data(self, data):
+        self.data = {'projects': [], "users": []}
+        for group in data:
+            for item in data[group]:
+                self.data[group].append(data[group][item].__dict__)
+
+        self.update_db()
+
+    def get_data(self):
+        data = {'projects' : {}, "users" : {}}
+        for group in self.data:
+            for item in self.data[group]:
+                if group == 'users':
+                    data[group][item['login']] = User(item['email'], item['login'], item['password'])
+                elif group == 'projects':
+                    pass
+                    data[group][item['name']] = Project(item['name'], item['description'], item['owner'], item['members'])
+        return data
 
 
 class Environment:
@@ -83,49 +43,97 @@ class Environment:
     """
     def __init__(self, db):
         self.db = db
+        self.data = db.get_data()
 
     def get_users(self):
-        self.users = {}
-        for user in self.db.get_users():
-            self.users[user['login']] = User(user['email'], user['login'], user['password'])
-
-        print (self.users)
-        return self.users
-
+        print(self.db.get_data()['users'])
+        return self.db.get_data()['users']
 
     def get_projects(self):
-        self.projects = {}
-        for project in self.db.get_projects():
-            self.projects[project['name']] = Project(project['name'], project['description'], project['owner'],
-                                                     ['project.members'])
+        print(self.db.get_data()['projects'])
+        return self.db.get_data()['projects']
 
-        print(self.projects)
-        return self.projects
+    def add_project(self, new_project):
 
+        for project in self.data['projects']:
+            if new_project.name == project:
+                raise KeyError('The Projects name is already used')
 
-    def add_project(self, project):
-        self.db.add_project_to_db(project)
+        for member in new_project.members:
+            if member not in self.data['users'].keys():
+                raise KeyError('Members must be users')
 
+        if new_project.owner not in self.data['users'].keys():
+            raise KeyError('Owner must be user')
 
-    def delete_project(self, name):
-        self.db.del_project_from_db(name)
-
-
-    def add_user(self, user):
-        self.db.add_user_to_db(user)
-
-
-    def delete_user(self, name):
-        self.db.del_user_from_db(name)
+        self.data['projects'][new_project.name] = new_project
+        self.db.update_data(self.data)
 
 
-    def update_project(self, name, property):
-        self.db.update_project( name, property)
+    def add_user(self, new_user):
+        for user in self.data['users']:
+            if new_user.login == user:
+                raise KeyError('The User name or Email  is already used')
+            if new_user.email == self.data['users'][user].email:
+                raise KeyError('The User name or Email  is already used')
+        else:
+            self.data['users'][new_user.login] = new_user
+            self.db.update_data(self.data)
 
 
-    def update_user(self, name, property):
-        self.db.update_user(name, property)
 
+    def delete_project(self, project_name):
+        if project_name in self.data['projects']:
+            del self.data['projects'][project_name]
+            self.db.update_data(self.data)
+
+
+
+    def delete_user(self, user_name):
+        if user_name in self.data['users']:
+            del self.data['users'][user_name]
+
+            for projects in self.data['projects']:
+                if user_name in self.data['projects'][projects].members:
+                    self.data['projects'][projects].members.remove(user_name)
+
+            self.db.update_data(self.data)
+
+            
+    def update_project(self, project_name, property):
+        if project_name in self.data["projects"].keys():
+
+            if property[0] == 'name' and property[1] not in self.data['users'].keys():
+                raise KeyError('Owner must be user')
+
+            if property[0] == 'members':
+                for member in property[1]:
+                    if member not in self.data['users'].keys():
+                        raise KeyError('Members must be users')
+
+            setattr(self.data["projects"][project_name], property[0], property[1])
+
+        self.db.update_data(self.data)
+
+    def update_user(self, user_name, property):
+        print(self.data["users"].keys())
+        if user_name in self.data["users"].keys():
+            setattr(self.data["users"][user_name], property[0], property[1])
+        else:
+            raise KeyError('There are no user with such name' )
+
+        if property[0] in self.data["users"][user_name].__dict__:
+
+            raise KeyError('There are not such property')
+
+        if property[0] == "login":
+            for projects in self.data['projects']:
+                if user_name in self.data['projects'][projects].members:
+                    self.data['projects'][projects].members.remove(user_name)
+                    self.data['projects'][projects].members.append(property[1])
+
+
+        self.db.update_data(self.data)
 
 
 class Project:
@@ -136,6 +144,7 @@ class Project:
         self.owner = owner
 
 
+
 class User:
     def __init__(self, email, login, password):
         self.email = email
@@ -144,10 +153,3 @@ class User:
 
 
 env = Environment(Database())
-env.get_projects()
-
-if __name__ == "__main__":
-    env = Environment(Database())
-    env.get_projects()
-    env.get_users()
-
