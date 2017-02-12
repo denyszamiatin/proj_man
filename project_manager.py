@@ -143,6 +143,8 @@ class User:
         self.password = password
 
 
+env = Environment(Database())
+env.get_projects()
 
 if __name__ == "__main__":
     env = Environment(Database())
