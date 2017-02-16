@@ -43,6 +43,7 @@ class Environment:
     def __init__(self, db):
         self.db = db
         self.data = db.get_data()
+        self.log_in_user = None
 
     def get_users(self):
         return self.db.get_data()['users']
@@ -126,6 +127,15 @@ class Environment:
                     self.data['projects'][projects].members.append(property[1])
 
         self.db.update_data(self.data)
+
+    def log_in(self, login, password):
+        try:
+            if self.data["users"][login].password == password:
+                self.log_in_user = login
+            else:
+                raise ValueError("Wrong password")
+        except KeyError:
+            raise KeyError("No such user")
 
 
 class Project:
