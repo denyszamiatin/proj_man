@@ -50,31 +50,34 @@ class Environment:
     def get_projects(self):
         return self.db.get_data()['projects']
 
-    def add_project(self, new_project):
+    def create_project(self, name, description, owner, members):
 
-        for project in self.data['projects']:
-            if new_project.name == project:
-                raise KeyError('The Projects name is already used')
-
-        for member in new_project.members:
+        if name in self.data['projects']:
+            raise KeyError('The Projects name is already used')
+        for member in members:
             if member not in self.data['users'].keys():
                 raise KeyError('Members must be users')
-
-        if new_project.owner not in self.data['users'].keys():
+        if owner not in self.data['users'].keys():
             raise KeyError('Owner must be user')
 
-        self.data['projects'][new_project.name] = new_project
+        try:
+            self.data['projects'][name] = Project(name, description, owner, members)
+        except ValueError:
+            raise ValueError("Project cannot be created")
         self.db.update_data(self.data)
 
-    def add_user(self, new_user):
+    def create_user(self, email, login, password):
         for user in self.data['users']:
-            if new_user.login == user:
-                raise KeyError('The User name or Email  is already used')
-            if new_user.email == self.data['users'][user].email:
-                raise KeyError('The User name or Email  is already used')
-        else:
-            self.data['users'][new_user.login] = new_user
-            self.db.update_data(self.data)
+            if login == user:
+                raise KeyError('The User name or Email is already used')
+            if email == self.data['users'][user].email:
+                raise KeyError('The User name or Email is already used')
+
+        try:
+            self.data['users'][login] = User(email, login, password)
+        except ValueError:
+            raise ValueError("User cannot be created")
+        self.db.update_data(self.data)
 
     def delete_project(self, project_name):
         if project_name in self.data['projects']:
