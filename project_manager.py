@@ -1,38 +1,39 @@
 """
-    Project Manager v: 0.6.3
+Project Manager v: 0.6.4
 """
 import json
 
 
 class Database:
-    def __init__(self):
-        self.data = {}
-        self._connect_db()
+    """
+    JSON database for project manager
+    """
+    def __init__(self, file_name='data.json'):
+        self.file_name = file_name
 
-    def _connect_db(self):
-        with open('data.json', 'r') as storage:
-            self.data = json.load(storage)
-
-    def update_db(self):
-        with open('data.json', 'w') as storage:
-            json.dump(self.data, storage)
-
-    def update_data(self, data):
-        self.data = {'projects': [], "users": []}
-        for group in data:
-            for item in data[group]:
-                self.data[group].append(data[group][item].__dict__)
-        self.update_db()
+    def update_data(self, new_data):
+        result = {'projects': [], "users": []}
+        for group in new_data:
+            for item in new_data[group]:
+                result[group].append(new_data[group][item].__dict__)
+        with open(self.file_name, 'w') as storage:
+            json.dump(result, storage)
 
     def get_data(self):
-        data = {'projects' : {}, "users" : {}}
-        for group in self.data:
-            for item in self.data[group]:
-                if group == 'users':
-                    data[group][item['login']] = User(item['email'], item['login'], item['password'])
-                elif group == 'projects':
-                    data[group][item['name']] = Project(item['name'], item['description'], item['owner'], item['members'])
-        return data
+        result = {'projects': {}, "users": {}}
+        try:
+            with open(self.file_name, 'r') as storage:
+                data = json.load(storage)
+                for group in data:
+                    for item in data[group]:
+                        if group == 'users':
+                            result[group][item['login']] = User(item['email'], item['login'], item['password'])
+                        elif group == 'projects':
+                            result[group][item['name']] = Project(item['name'], item['description'],
+                                                                  item['owner'], item['members'])
+                return result
+        except FileNotFoundError:
+            return result
 
 
 class Environment:
@@ -140,5 +141,3 @@ class User:
 
 
 env = Environment(Database())
-
-
