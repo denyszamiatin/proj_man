@@ -8,32 +8,39 @@ class Database:
     """
     JSON database for project manager
     """
+    CLSS = {'users': User, 'projects': Project}
+
     def __init__(self, file_name='data.json'):
         self.file_name = file_name
 
+    def _get_result_format(self):
+        return {'projects': [], "users": []}
+
     def update_data(self, new_data):
-        result = {'projects': [], "users": []}
+        result = self._get_result_format()
         for group in new_data:
             for item in new_data[group]:
                 result[group].append(new_data[group][item].__dict__)
         with open(self.file_name, 'w') as storage:
             json.dump(result, storage)
 
+    def _parse_object(self, cls, item):
+        fields = {name: item[name] for name in cls.get_fields()}
+        return item['name'], cls(**fields)
+
+    def _parse_data(self, data):
+        result = self._get_result_format()
+        for group in data:
+            for item in data[group]:
+                key, obj = self._parse_object(self.CLSS[group], item)
+                result[group][key] = obj
+
     def get_data(self):
-        result = {'projects': {}, "users": {}}
         try:
             with open(self.file_name, 'r') as storage:
-                data = json.load(storage)
-                for group in data:
-                    for item in data[group]:
-                        if group == 'users':
-                            result[group][item['login']] = User(item['email'], item['login'], item['password'])
-                        elif group == 'projects':
-                            result[group][item['name']] = Project(item['name'], item['description'],
-                                                                  item['owner'], item['members'])
-                return result
+                return self._parse_data(json.load(storage))
         except FileNotFoundError:
-            return result
+            return self._get_result_format()
 
 
 class Environment:
@@ -129,13 +136,11 @@ class Environment:
         self.db.update_data(self.data)
 
     def log_in(self, login, password):
-        try:
-            if self.data["users"][login].password == password:
-                self.log_in_user = login
-            else:
-                raise ValueError("Wrong password")
-        except KeyError:
-            raise KeyError("No such user")
+        if login in self.data["users"] and \
+                        self.data["users"][login].password == password:
+            self.log_in_user = login
+        else:
+            raise KeyError("Wrong password or user name")
 
 
 class Project:
@@ -145,12 +150,20 @@ class Project:
         self.members = members.copy()
         self.owner = owner
 
+    @staticmethod
+    def get_fields(self):
+        return 'name', 'description', 'members', 'owner'
+
 
 class User:
     def __init__(self, email, login, password):
         self.email = email
         self.login = login
         self.password = password
+
+    @staticmethod
+    def get_fields():
+        return 'email', 'login', 'password'
 
 
 env = Environment(Database())
