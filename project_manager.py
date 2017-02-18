@@ -4,6 +4,29 @@ Project Manager v: 0.6.4
 import json
 
 
+class Project:
+    def __init__(self, name, description, owner, members=[]):
+        self.name = name
+        self.description = description
+        self.members = members.copy()
+        self.owner = owner
+
+    @staticmethod
+    def get_fields():
+        return 'name', 'description', 'members', 'owner'
+
+
+class User:
+    def __init__(self, email, login, password):
+        self.email = email
+        self.login = login
+        self.password = password
+
+    @staticmethod
+    def get_fields():
+        return 'login', 'email', 'password'
+
+
 class Database:
     """
     JSON database for project manager
@@ -14,10 +37,10 @@ class Database:
         self.file_name = file_name
 
     def _get_result_format(self):
-        return {'projects': [], "users": []}
+        return {'projects': {}, "users": {}}
 
     def update_data(self, new_data):
-        result = self._get_result_format()
+        result = {'projects': [], "users": []}
         for group in new_data:
             for item in new_data[group]:
                 result[group].append(new_data[group][item].__dict__)
@@ -26,7 +49,7 @@ class Database:
 
     def _parse_object(self, cls, item):
         fields = {name: item[name] for name in cls.get_fields()}
-        return item['name'], cls(**fields)
+        return item[cls.get_fields()[0]], cls(**fields)
 
     def _parse_data(self, data):
         result = self._get_result_format()
@@ -34,6 +57,7 @@ class Database:
             for item in data[group]:
                 key, obj = self._parse_object(self.CLSS[group], item)
                 result[group][key] = obj
+        return result
 
     def get_data(self):
         try:
@@ -53,13 +77,13 @@ class Environment:
         self.log_in_user = None
 
     def get_users(self):
-        return self.db.get_data()['users']
+        return self.data['users']
 
     def get_projects(self):
-        return self.db.get_data()['projects']
+        return self.data['projects']
 
-    def create_project(self, name, description, owner, members):
-
+    def create_project(self, name, description, owner, members=[]):
+        members = members.copy()
         if name in self.data['projects']:
             raise KeyError('The Projects name is already used')
         for member in members:
@@ -141,29 +165,6 @@ class Environment:
             self.log_in_user = login
         else:
             raise KeyError("Wrong password or user name")
-
-
-class Project:
-    def __init__(self, name, description, owner, members=[]):
-        self.name = name
-        self.description = description
-        self.members = members.copy()
-        self.owner = owner
-
-    @staticmethod
-    def get_fields(self):
-        return 'name', 'description', 'members', 'owner'
-
-
-class User:
-    def __init__(self, email, login, password):
-        self.email = email
-        self.login = login
-        self.password = password
-
-    @staticmethod
-    def get_fields():
-        return 'email', 'login', 'password'
 
 
 env = Environment(Database())
