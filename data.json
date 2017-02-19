@@ -1,1 +1,1 @@
-{"projects": [{"name": "two", "description": "second project", "members": [], "owner": "igor"}], "users": [{"email": "malfar@gmal.com", "login": "igor", "password": "12134566"}]}
+{"users": [{"login": "igor", "password": "666", "email": "test@ukr.net"}, {"login": "alex", "password": "3333", "email": "one@mail.ru"}, {"login": "mark", "password": "13", "email": "two.mail.ru"}], "projects": [{"autor": "alex", "members": ["alex"], "description": "first", "name": "one"}]}

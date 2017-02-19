@@ -5,15 +5,15 @@ import json
 
 
 class Project:
-    def __init__(self, name, description, owner, members=[]):
+    def __init__(self, name, description, autor, members=[]):
         self.name = name
         self.description = description
         self.members = members.copy()
-        self.owner = owner
+        self.autor = autor
 
     @staticmethod
     def get_fields():
-        return 'name', 'description', 'members', 'owner'
+        return 'name', 'description', 'members', 'autor'
 
 
 class User:
@@ -26,6 +26,8 @@ class User:
     def get_fields():
         return 'login', 'email', 'password'
 
+class ProjectError(Exception):pass
+class UserError(Exception):pass
 
 class Database:
     """
@@ -67,14 +69,106 @@ class Database:
             return self._get_result_format()
 
 
-class Environment:
+class ModelDatabaseValidation:
+
+    @classmethod
+    def add_project_validation(cls, fn):
+        def wrapped(self, project):
+            if type(project).__name__ != 'Project':
+                raise TypeError('It is not a valid project instance')
+
+            if project.name in self.data['projects']:
+                raise ProjectError('The Projects name is already used')
+            elif project.members:
+                for member in project.members:
+                    if member not in self.data['users'].keys():
+                        raise ProjectError('Members must be users')
+            elif project.owner not in self.data['users'].keys():
+                raise ProjectError('Autor must be user')
+
+            return fn(self, project)
+
+        return wrapped
+
+    @classmethod
+    def delete_project_validation(cls, fn):
+        def wrapped(self, project_name):
+
+            if project_name in self.data['projects']:
+                return fn(self, project_name)
+            else:
+                raise ProjectError("Project with this name doesn't exist")
+
+        return wrapped
+
+    @classmethod
+    def add_user_validation(cls, fn):
+        def wrapped(self, user):
+
+            if type(user).__name__ != 'User':
+                raise TypeError('It is not a valid user instance')
+            if user.login in self.data['users'].keys():
+                raise UserError('The User name or Email is already used')
+            if user.email in [value.email for key, value in self.data['users'].items()]:
+                raise UserError('The User name or Email is already used')
+
+            return fn(self, user)
+
+        return wrapped
+
+    @classmethod
+    def delete_user_validation(cls, fn):
+        def wrapped(self, user_name):
+
+            if user_name not in self.data['users']:
+                raise UserError("User doesn't exist")
+
+            return fn(self, user_name)
+        return wrapped
+
+    @classmethod
+    def update_project_validation(cls, fn):
+        def wrapped(self, project_name, property):
+            if project_name in self.data["projects"]:
+
+                if property[0] == 'name' and property[1] not in self.data['users']:
+                    raise ProjectError('Autor must be user')
+
+                if property[0] == 'members':
+                    for member in property[1]:
+                        if member not in self.data['users'].keys():
+                            raise KeyError('Members must be users')
+
+                return fn(self, project_name, property)
+            else:
+                raise ProjectError("Project with this name doesn't exist")
+
+        return wrapped
+
+    @classmethod
+    def update_user_validation(cls, fn):
+        def wrapped(self, user_name, property):
+            if user_name in self.data["users"]:
+                if property[0] not in self.data["users"][user_name].__dict__:
+                    print(property[0])
+                    print(self.data["users"][user_name].__dict__)
+                    raise UserError('There are not such property')
+                return fn(self, user_name, property)
+            else:
+                raise UserError('There are no user with such name')
+
+
+
+        return wrapped
+
+
+class ModelDatabase:
     """
     Main configuration
     """
     def __init__(self, db):
         self.db = db
         self.data = db.get_data()
-        self.log_in_user = None
 
     def get_users(self):
         return self.data['users']
@@ -82,89 +176,193 @@ class Environment:
     def get_projects(self):
         return self.data['projects']
 
-    def create_project(self, name, description, owner, members=[]):
-        members = members.copy()
-        if name in self.data['projects']:
-            raise KeyError('The Projects name is already used')
-        for member in members:
-            if member not in self.data['users'].keys():
-                raise KeyError('Members must be users')
-        if owner not in self.data['users'].keys():
-            raise KeyError('Owner must be user')
-
-        try:
-            self.data['projects'][name] = Project(name, description, owner, members)
-        except ValueError:
-            raise ValueError("Project cannot be created")
+    @ModelDatabaseValidation.add_project_validation
+    def add_project(self, project):
+        self.data['projects'][project.name] = project
         self.db.update_data(self.data)
 
-    def create_user(self, email, login, password):
-        for user in self.data['users']:
-            if login == user:
-                raise KeyError('The User name or Email is already used')
-            if email == self.data['users'][user].email:
-                raise KeyError('The User name or Email is already used')
-
-        try:
-            self.data['users'][login] = User(email, login, password)
-        except ValueError:
-            raise ValueError("User cannot be created")
+    @ModelDatabaseValidation.add_user_validation
+    def add_user(self, user):
+        self.data['users'][user.login] = user
         self.db.update_data(self.data)
 
+    @ModelDatabaseValidation.delete_project_validation
     def delete_project(self, project_name):
-        if project_name in self.data['projects']:
-            del self.data['projects'][project_name]
-            self.db.update_data(self.data)
+        del self.data['projects'][project_name]
+        self.db.update_data(self.data)
 
+    @ModelDatabaseValidation.delete_user_validation
     def delete_user(self, user_name):
-        if user_name in self.data['users']:
-            del self.data['users'][user_name]
 
-            for projects in self.data['projects']:
-                if user_name in self.data['projects'][projects].members:
-                    self.data['projects'][projects].members.remove(user_name)
+        for projects in self.data['projects']:
+            if user_name in self.data['projects'][projects].members:
+                self.data['projects'][projects].members.remove(user_name)
 
-            self.db.update_data(self.data)
+        del self.data['users'][user_name]
+        self.db.update_data(self.data)
 
+    @ModelDatabaseValidation.update_project_validation
     def update_project(self, project_name, property):
-        if project_name in self.data["projects"].keys():
 
-            if property[0] == 'name' and property[1] not in self.data['users'].keys():
-                raise KeyError('Owner must be user')
-
-            if property[0] == 'members':
-                for member in property[1]:
-                    if member not in self.data['users'].keys():
-                        raise KeyError('Members must be users')
-
-            setattr(self.data["projects"][project_name], property[0], property[1])
-
+        setattr(self.data["projects"][project_name], property[0], property[1])
         self.db.update_data(self.data)
 
+    @ModelDatabaseValidation.update_user_validation
     def update_user(self, user_name, property):
-        print(self.data["users"].keys())
-        if user_name in self.data["users"].keys():
-            setattr(self.data["users"][user_name], property[0], property[1])
-        else:
-            raise KeyError('There are no user with such name' )
-
-        if property[0] in self.data["users"][user_name].__dict__:
-            raise KeyError('There are not such property')
-
         if property[0] == "login":
-            for projects in self.data['projects']:
-                if user_name in self.data['projects'][projects].members:
-                    self.data['projects'][projects].members.remove(user_name)
-                    self.data['projects'][projects].members.append(property[1])
+            for project in self.data['projects']:
+                if user_name in self.data['projects'][project].members:
+                    self.data['projects'][project].members.remove(user_name)
+                    self.data['projects'][project].members.append(property[1])
 
+                if  user_name == self.data['projects'][project].autor:
+                    self.data['projects'][project].autor = property[1]
+
+        setattr(self.data["users"][user_name], property[0], property[1])
         self.db.update_data(self.data)
 
-    def log_in(self, login, password):
-        if login in self.data["users"] and \
-                        self.data["users"][login].password == password:
-            self.log_in_user = login
+
+
+
+class Controller:
+    def __init__(self ):
+        self.model =ModelDatabase(Database())
+        self.connect()
+
+
+
+    def connect(self):
+        while True:
+
+            command = input('\nEnter number(create user - 1, create project - 2)'
+                            '\n\t\t\t update user - 3, update project - 4'
+                            '\n\t\t\t delete user - 5, delete project - 6):'
+                            '\n\t\t\t get users - 7, get projects - 8):\n>>>')
+
+            if not command.isdigit():
+                print ('Input must be integer')
+            elif  int(command) not in range(1, 9):
+                print ('Input must be one of the next number - 1, 2, 3, 4, 5, 6, 7, 8')
+            else:
+                break
+
+        if int(command) == 1:
+            self.create_user()
+        elif int(command) == 2:
+            self.create_project()
+        elif int(command) == 3:
+            self.update_user()
+        elif int(command) == 4:
+            self.update_project()
+        elif int(command) == 5:
+            self.delete_user()
+        elif int(command) == 6:
+            self.delete_project()
+        elif int(command) == 7:
+            self.show_users()
+        elif int(command) == 8:
+            self.show_projects()
+
+    def show_users(self):
+        print(self.model.get_users())
+        self.connect()
+
+    def show_projects(self):
+        print(self.model.get_projects())
+        self.connect()
+
+    def create_user(self):
+        email = input('Enter Email:>')
+        login = input('Enter Login:>')
+        password = input('Enter Password:>')
+
+        user = User(email, login, password)
+        try:
+            self.model.add_user(user)
+        except Exception as e:
+            print('\t{}'.format(e))
         else:
-            raise KeyError("Wrong password or user name")
+            print('\t{}'.format("User created"))
+        self.connect()
+
+    def create_project(self):
+        name = input('Enter Name:>')
+        description = input('Enter Description:>')
+        autor = input('Enter Autor:>')
+        members = input('Enter Members(separate only by ","):>')
+
+        project = Project(name, description, autor, members.split(','))
+        try:
+            self.model.add_project(project)
+        except Exception as e:
+            print('\t{}'.format(e))
+        else:
+            print('\t{}'.format("Project created"))
+
+        self.connect()
+
+    def delete_user(self):
+        name = input('Enter User login:>')
+
+        try:
+            self.model.delete_user(name)
+        except Exception as e:
+            print('\t{}'.format(e))
+        else:
+            print('\t{}'.format("User deleted"))
+
+        self.connect()
+
+    def delete_project(self):
+        name = input('Enter Project name:>')
+
+        try:
+            self.model.delete_project(name)
+        except Exception as e:
+            print('\t{}'.format(e))
+        else:
+            print('\t{}'.format("Project deleted"))
+
+        self.connect()
+
+    def update_user(self):
+        name = input('Enter User login:>')
+        property = input('Enter name of property and new value(separated only by ":")>')
+
+        property, value = property.split(":")
 
 
-env = Environment(Database())
+        try:
+            self.model.update_user(name, (property, value))
+        except Exception as e:
+            print('\t{}'.format(e))
+        else:
+            print('\t{}'.format("User updated"))
+
+        self.connect()
+
+    def update_project(self):
+        name = input('Enter Project name:>')
+        property = input('Enter name of property and new value(separate only by ":")\n'
+                         ' if property == members(separate members by ",")>')
+
+        property, value = property.split(":")
+        if property == 'members':
+            value = value.split(",")
+
+
+        try:
+            self.model.update_project(name, (property, value))
+        except Exception as e:
+            print('\t{}'.format(e))
+        else:
+            print('\t{}'.format("project updated"))
+
+        self.connect()
+
+
+env = Controller()
+
+
+
+
