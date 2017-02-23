@@ -3,7 +3,6 @@ from project_manager_error import ProjectError
 import re
 
 
-
 def name_validation(value):
     if len(value) < 2:
         raise ProjectError("Name is too short - minimum 2 characters")

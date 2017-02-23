@@ -40,7 +40,6 @@ Enter number(create user - 1, create project - 2)
             return
         self.command_set[command]()
 
-
     def show_users(self):
         print(self.model.get_users())
         self.connect()

@@ -8,7 +8,6 @@ from database_json import Database
 from project_manager_error import DatabaseUserError, DatabaseProjectError
 
 
-
 def add_project_validation(fn):
     def wrapped(self, project):
 
@@ -29,6 +28,7 @@ def add_project_validation(fn):
 
     return wrapped
 
+
 def delete_project_validation(fn):
     def wrapped(self, project_name):
 
@@ -37,6 +37,7 @@ def delete_project_validation(fn):
 
         return fn(self, project_name)
     return wrapped
+
 
 def add_user_validation(fn):
     def wrapped(self, user):
@@ -52,6 +53,7 @@ def add_user_validation(fn):
 
     return wrapped
 
+
 def delete_user_validation(fn):
     def wrapped(self, user_name):
 
@@ -60,6 +62,7 @@ def delete_user_validation(fn):
 
         return fn(self, user_name)
     return wrapped
+
 
 def update_project_validation(fn):
     def wrapped(self, project_name, property):
@@ -79,6 +82,7 @@ def update_project_validation(fn):
 
     return wrapped
 
+
 def update_user_validation(fn):
     def wrapped(self, user_name, property):
         if user_name in self.get_users():
@@ -87,6 +91,7 @@ def update_user_validation(fn):
             raise DatabaseUserError('There are no user with such name')
 
     return wrapped
+
 
 class ModelDatabase:
     """
@@ -163,7 +168,6 @@ class ModelDatabase:
                 user.update_property(*property)
 
         self.db.update_data(self.data)
-
 
 
 if __name__ == "__main__":
