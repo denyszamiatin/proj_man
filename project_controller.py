@@ -55,7 +55,7 @@ Enter number(create user - 1, create project - 2)
 
         user = User(email, login, password)
         try:
-            self.model.add_user(user.strip())
+            self.model.add_user(user)
         except Exception as e:
             print('\t{}'.format(e))
         else:
@@ -70,7 +70,7 @@ Enter number(create user - 1, create project - 2)
 
         project = Project(name, description, author, members.split(','))
         try:
-            self.model.add_project(project.strip())
+            self.model.add_project(project)
         except Exception as e:
             print('\t{}'.format(e))
         else:
@@ -82,7 +82,7 @@ Enter number(create user - 1, create project - 2)
         name = input('Enter User login:>')
 
         try:
-            self.model.delete_user(name.strip())
+            self.model.delete_user(name)
         except Exception as e:
             print('\t{}'.format(e))
         else:
@@ -94,7 +94,7 @@ Enter number(create user - 1, create project - 2)
         name = input('Enter Project name:>')
 
         try:
-            self.model.delete_project(name.strip())
+            self.model.delete_project(name)
         except Exception as e:
             print('\t{}'.format(e))
         else:
@@ -111,7 +111,7 @@ Enter number(create user - 1, create project - 2)
 
 
         try:
-            self.model.update_user(name.strip(), (property.strip(), value.strip()))
+            self.model.update_user(name, (property, value))
         except Exception as e:
             print('\t{}'.format(e))
         else:
@@ -131,7 +131,7 @@ Enter number(create user - 1, create project - 2)
 
 
         try:
-            self.model.update_project(name, (property.strip(), value.strip()))
+            self.model.update_project(name, (property, value))
         except Exception as e:
             print('\t{}'.format(e))
         else:
