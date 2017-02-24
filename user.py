@@ -1,5 +1,6 @@
 from project_manager_error import UserError
 import re
+import hashlib
 
 
 def login_validation(value):
@@ -45,7 +46,11 @@ class User:
     def __init__(self, email, login, password):
         self.email = email
         self.login = login
-        self.password = password
+        self.password = self.hash_password(password)
+
+    @staticmethod
+    def hash_password(password):
+        return hashlib.md5(password.encode('utf-8')).hexdigest()
 
     @staticmethod
     def get_fields():
@@ -53,6 +58,8 @@ class User:
 
     @user_update_validation
     def update_property(self, name, value):
+        if name == "password":
+            value = self.hash_password(value)
         setattr(self, name, value)
 
 
