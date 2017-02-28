@@ -1,1 +1,2 @@
-{"projects": [{"name": "test", "description": "aaaa", "members": [], "author": "igor"}, {"name": "one", "description": "first", "members": [], "author": "igor"}], "users": [{"email": "igor@gmail.com", "login": "igor", "password": "dd97813dd40be87559aaefed642c3fbb"}]}
+{"projects": [{"name": "test", "description": "aaaa", "members": [], "author": "igor"}, {"name": "one", "description": "first", "members": [], "author": "igor"}], "users": [{"checked": true, "password": "f2463054f24bd51fdfb4afefc745800f", "login": "dima", "email": "dima@g.com"}, {"checked": true, "password": "a30ed01b1b4ebcf704bd13a92b5bfdcd", "login": "dimaa", "email": "dima@dima.com"}]}
+

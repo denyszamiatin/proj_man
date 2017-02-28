@@ -1,12 +1,11 @@
-
-
 from project_model import ModelDatabase
 from database_json import Database
 from user import User
 from project import Project
 
+
 class Controller:
-    def __init__(self ):
+    def __init__(self):
         self.model = ModelDatabase(Database())
         self.command_set = {'1': self.create_user, '2': self.create_project, '3': self.update_user,
                             '4': self.update_project, '5': self.delete_user, '6': self.delete_project,
@@ -29,8 +28,8 @@ Enter number(create user - 1, create project - 2)
             elif not command.isdigit():
                 print('Input must be integer')
             elif int(command) not in range(1, 9):
-                print ('Input must be one of the next number '
-                       '- 1, 2, 3, 4, 5, 6, 7, 8')
+                print('Input must be one of the next number '
+                      '- 1, 2, 3, 4, 5, 6, 7, 8')
             else:
                 return command
 
@@ -48,12 +47,21 @@ Enter number(create user - 1, create project - 2)
         print(self.model.get_projects())
         self.connect()
 
+    @staticmethod
+    def is_password_identical():
+        while True:
+            psw = input('Enter Password:>')
+            if psw == input('Confirm Password:>'):
+                return psw
+            print('Passwords are not identical! Try again')
+            continue
+
     def create_user(self):
         email = input('Enter Email:>')
         login = input('Enter Login:>')
-        password = input('Enter Password:>')
+        password = self.is_password_identical()
 
-        user = User(email, login, password)
+        user = User(email, login, password, checked=False)
         try:
             self.model.add_user(user)
         except Exception as e:
@@ -109,7 +117,6 @@ Enter number(create user - 1, create project - 2)
 
         property, value = property.split(":")
 
-
         try:
             self.model.update_user(name, (property, value))
         except Exception as e:
@@ -129,7 +136,6 @@ Enter number(create user - 1, create project - 2)
         if property == 'members':
             value = value.split(",")
 
-
         try:
             self.model.update_project(name, (property, value))
         except Exception as e:
@@ -138,6 +144,5 @@ Enter number(create user - 1, create project - 2)
             print('\t{}'.format("project updated"))
 
         self.connect()
-
 
 env = Controller()
