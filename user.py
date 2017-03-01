@@ -19,7 +19,7 @@ def password_validation(value):
 
 
 def user_create_validation(fn):
-    def wrap(self, email, login, password, newuser):
+    def wrap(self, email, login, password, newuser=False):
         email_validation(email)
         login_validation(login)
         if newuser:
@@ -45,7 +45,7 @@ def user_update_validation(fn):
 
 class User:
     @user_create_validation
-    def __init__(self, email, login, password, newUser=False):
+    def __init__(self, email, login, password, newuser=False):
         self.email = email
         self.login = login
         self.password = self.hash_password(password)
