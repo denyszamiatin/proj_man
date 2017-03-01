@@ -1,2 +1,1 @@
-{"projects": [{"name": "test", "description": "aaaa", "members": [], "author": "igor"}, {"name": "one", "description": "first", "members": [], "author": "igor"}], "users": [{"checked": true, "password": "f2463054f24bd51fdfb4afefc745800f", "login": "dima", "email": "dima@g.com"}, {"checked": true, "password": "a30ed01b1b4ebcf704bd13a92b5bfdcd", "login": "dimaa", "email": "dima@dima.com"}]}
-
+{"projects": [{"name": "newproject", "members": ["dima"], "author": "dima", "description": "smthnew"}], "users": [{"login": "dima", "email": "dimagordon@gmail.com", "password": "d8578edf8458ce06fbc5bb76a58c5ca4"}, {"login": "newuser", "email": "new@mail.com", "password": "22af645d1859cb5ca6da0c484f1f37ea"}]}

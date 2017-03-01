@@ -61,7 +61,7 @@ Enter number(create user - 1, create project - 2)
         login = input('Enter Login:>')
         password = self.is_password_identical()
 
-        user = User(email, login, password, checked=False)
+        user = User(email, login, password, newuser=True)
         try:
             self.model.add_user(user)
         except Exception as e:

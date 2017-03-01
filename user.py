@@ -19,13 +19,13 @@ def password_validation(value):
 
 
 def user_create_validation(fn):
-    def wrap(self, email, login, password, checked):
+    def wrap(self, email, login, password, newuser):
         email_validation(email)
         login_validation(login)
-        if not checked:
+        if newuser:
             password_validation(password)
-            checked = True
-        return fn(self, email, login, password, checked)
+            newuser = False
+        return fn(self, email, login, password, newuser)
     return wrap
 
 
@@ -45,12 +45,10 @@ def user_update_validation(fn):
 
 class User:
     @user_create_validation
-    def __init__(self, email, login, password, checked=False):
-        print('init')
+    def __init__(self, email, login, password, newUser=False):
         self.email = email
         self.login = login
         self.password = self.hash_password(password)
-        self.checked = checked
 
     @staticmethod
     def hash_password(password):
@@ -58,7 +56,7 @@ class User:
 
     @staticmethod
     def get_fields():
-        return 'login', 'email', 'password', 'checked'
+        return 'login', 'email', 'password'
 
     @user_update_validation
     def update_property(self, name, value):
