@@ -102,10 +102,10 @@ class ModelDatabase:
         self.data = db.get_data()
 
     def get_users(self):
-        return [user.login for user in self.data['users']]
+        return self.data['users']
 
     def get_projects(self):
-        return [project.name for project in self.data['projects']]
+        return self.data['projects']
 
     def is_project_exist(self, project_name):
         return project_name in [project.name for project in self.data['projects']]

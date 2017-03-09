@@ -49,11 +49,13 @@ class User:
     def __init__(self, email, login, password, newuser=False):
         self.email = email
         self.login = login
+        self.newUser = newuser
         self.password = self.hash_password(password)
 
-    @staticmethod
-    def hash_password(password):
-        return hashlib.md5(password.encode('utf-8')).hexdigest()
+    def hash_password(self, password):
+        if self.newUser:
+            return hashlib.md5(password.encode('utf-8')).hexdigest()
+        return password
 
     @staticmethod
     def get_fields():
