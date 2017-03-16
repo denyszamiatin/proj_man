@@ -12,13 +12,12 @@ def add_user_rc(user):
 
     if data:
         raise DatabaseUserError('The User with such login or email is already exist')
+    try:
+        ses.add(user)
+    except Exception as e:
+        print(e)
     else:
-        try:
-            ses.add(user)
-        except Exception as e:
-            print(e)
-        else:
-            ses.commit()
+        ses.commit()
 
 
 def add_project_rc(prj):
@@ -27,13 +26,12 @@ def add_project_rc(prj):
 
     if data:
         raise DatabaseProjectError('The Project with such name is already exist')
+    try:
+        ses.add(prj)
+    except Exception as e:
+        raise e
     else:
-        try:
-            ses.add(prj)
-        except Exception as e:
-            raise e
-        else:
-            ses.commit()
+        ses.commit()
 
 
 def delete_user_rc(user_login):
