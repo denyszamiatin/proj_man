@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="keywords" content="">
+  <meta name="description" content="">
+  <!--[if IE 6]>
+  <script type="text/javascript">
+      location.replace("http://browsehappy.com/");
+  </script>
+  <![endif]-->
+
+	<title>Project Manager</title>
+
+
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/main.css">
+  
+  <script src="js/dependencies/jquery.min.js"></script>
+ 
+</head>
+<body>
+  <div class="wrapper" id="wrapper">
+    <div class="user_login" >
+        <img src="img/logo.png" alt="Sorry! Something wrong with image" class="image">
+        <p class="status_message">$message$</p>
+        <form action="/" method = "POST" id="user_login">
+          <input type="text" name="username" placeholder="User" />
+          <input type="password" name="password" placeholder="Password" />
+          <button type="submit" form="user_login" name="submit" value="login">Login</button>
+        </form>
+        <div>Registration</div>
+    </div>
+    
+    <div class="user_registration">
+        <img src="img/logo.png" alt="Sorry! Something wrong with image" class="image">
+        <form action="./prj_server.py" method = "POST" id="user_reg">
+          <input type="text" name="login" placeholder="User" />
+          <input type="text" name="email" placeholder="Email" />
+          <input type="password" name="password" placeholder="Password" />
+          <input type="password" name="confirm_password" placeholder="Confirm Password" />
+          <button type="submit" form="user_reg" name="submit" value="registration">SignUp</button>
+        </form>
+        <div>Cancel</div>   
+    </div>
+
+  </div>
+
+  <script src="js/dependencies/bootstrap.min.js"></script>
+  <script src="js/common.js"></script>
+</body>
+</html>
