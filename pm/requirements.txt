@@ -1,0 +1,6 @@
+Django
+Pillow
+psycopg2
+django-crispy-forms
+python-dateutil
+django-registration-redux

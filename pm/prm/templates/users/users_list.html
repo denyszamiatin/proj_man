@@ -1,0 +1,46 @@
+
+{% extends 'base.html' %}
+
+{% load static from staticfiles %}
+
+{% block meta_title %}Users{% endblock meta_title %}
+
+{% block title %}Users{% endblock title %}
+
+{% block content %}
+<a href="{% url 'users_add' %}" class="btn btn-primary">Add User</a>
+
+<!-- Start Students Listing -->
+<table class="table">
+  <thead>
+    <tr>
+      <th><a href="#">#</a></th>
+      <th><a href="#">Name</a></th>
+      <th><a href="#">Email</a></th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in users %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><a href="#">{{ user.login }}</a></td>
+      <td><a href="#">{{ user.email }}</a></td>
+      <td>
+        <div class="btn-group">
+          <button type="button" class="btn btn-default dropdown-toggle"
+                  data-toggle="dropdown">Action
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="{% url 'users_edit' user.id %}">Edit</a></li>
+            <li><a href="{% url 'users_delete' user.id %}">Delete</a></li>
+          </ul>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% include 'paginations.html' %}
+{% endblock content %}

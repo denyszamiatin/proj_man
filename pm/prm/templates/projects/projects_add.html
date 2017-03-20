@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block meta_title %}Add Project{% endblock meta_title %}
+
+
+{% block status_message %}
+{% if errors %}
+	<div class="alert alert-warning" role="alert"> Please correct the following errors </div>
+{% endif %}
+{% endblock status_message %}
+
+
+{% block title %}Add Project{% endblock title %}
+
+{% block content %}
+
+<form action="{% url 'projects_add' %}" method="post" enctype="multipart/form-data" class="form-horizontal">
+	{% csrf_token%}
+	<div class="form-group {% if errors.name %}has-error{% endif%}" >
+		<label class="col-xs-2 control-label" for="name">Name*</label>
+		<div class="col-xs-3">
+			<input type="text" class="form-control" id="name" name="name" value="{{ request.POST.name }}" placeholder=""/>
+			<span class="help-block">{{ errors.name }}</span>
+		</div>
+	</div>
+
+	<div class="form-group {% if errors.author %}has-error{% endif%}">
+		<label class="col-xs-2 control-label" for="author">Author*</label>
+		<div class="col-xs-3">
+			<select class="form-control" id="author" name="author" >
+				{% for user in users %}
+				<option value="{{ user.id }}">{{user.login}}</option>
+				{% endfor %}
+			</select>
+			<span class="help-block">{{ errors.author }}</span>
+		</div>
+	</div>
+
+	<div class="form-group members">
+		<label class="col-xs-2 control-label" for="author">Members</label>
+		<div class="col-xs-3">
+			<div class="button-group">
+				<button type="button" class="btn btn-default btn-sm dropdown-toggle col-xs-12" data-toggle="dropdown">
+					<span class="col-xs-11 members_list"></span> <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu col-xs-12 list-group">
+					{% for user in users %}
+					<li class="list-group-item"><input type="checkbox" name="member_{{user.login}}"
+													   {%if user in members%}checked{%endif%}
+					/>{{user.login}}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-xs-2 control-label" for="notes">Descriptions</label>
+		<div class="col-xs-3">
+			<textarea class="form-control" id="notes" name="notes" placeholder=""></textarea>
+		</div>
+	</div>
+
+	<div class="row form-group" >
+		<div class="col-xs-1 col-xs-offset-2">
+			<input type="submit" value="Add" name="add_button" class="btn btn-primary"/>
+		</div>
+		<div class="col-xs-2">
+			<button name="cancel_button" class="btn btn-default">Cancel</button>
+		</div>
+	</div>
+</form>
+{% endblock content %}

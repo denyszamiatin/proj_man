@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block meta_title %}Edit user{% endblock meta_title %}
+
+
+{% block status_message %}
+{% if errors %}
+	<div class="alert alert-warning" role="alert"> Please correct the following errors </div>
+{% endif %}
+{% endblock status_message %}
+
+
+{% block title %}Edit user{% endblock title %}
+
+{% block content %}
+
+<form action="{% url 'users_edit' user.id %}" method="post" enctype="multipart/form-data" class="form-horizontal">
+	{% csrf_token%}
+	<div class="form-group {% if errors.login %}has-error{% endif%}" >
+		<label class="col-xs-2 control-label" for="login">Login*</label>
+		<div class="col-xs-3">
+			<input type="text" class="form-control" id="login" name="login"
+				   value="{% if request.POST %}{{ request.POST.login }}
+				   {% else %}{{ user.login }}{% endif %}" placeholder=""/>
+			<span class="help-block">{{ errors.login }}</span>
+		</div>
+	</div>
+
+	<div class="form-group {% if errors.email %}has-error{% endif%}" >
+		<label class="col-xs-2 control-label" for="email">Email*</label>
+		<div class="col-xs-3">
+			<input type="email" class="form-control" id="email" name="email"
+				   value="{% if request.POST %}{{ request.POST.email }}
+				   {% else %}{{ user.email }}{% endif %}" placeholder=""/>
+			<span class="help-block">{{ errors.email }}</span>
+		</div>
+	</div>
+
+	<div class="form-group {% if errors.password  %}has-error{% endif%}" >
+		<label class="col-xs-2 control-label" for="password">Password*</label>
+		<div class="col-xs-3">
+			<input type="password" class="form-control" id="password" name="password" value="{{ request.POST.password }}" placeholder=""/>
+			<span class="help-block">{{ errors.password }}</span>
+		</div>
+	</div>
+
+	<div class="form-group {% if errors.c_password %}has-error{% endif%}" >
+		<label class="col-xs-2 control-label" for="c_password">Confirm password*</label>
+		<div class="col-xs-3">
+			<input type="password" class="form-control" id="c_password" name="c_password" value="{{ request.POST.c_password }}" placeholder=""/>
+			<span class="help-block">{{ errors.c_password }}</span>
+		</div>
+	</div>
+
+
+	<div class="row form-group" >
+		<div class="col-xs-1 col-xs-offset-2">
+			<input type="submit" value="Edit" name="edit_button" class="btn btn-primary"/>
+		</div>
+		<div class="col-xs-2">
+			<button name="cancel_button" class="btn btn-default">Cancel</button>
+		</div>
+	</div>
+</form>
+{% endblock content %}

@@ -1,0 +1,56 @@
+
+{% extends 'base.html' %}
+
+{% load static from staticfiles %}
+
+{% block meta_title %}Projects{% endblock meta_title %}
+
+{% block title %}Projects{% endblock title %}
+
+{% block content %}
+<a href="{% url 'projects_add' %}" class="btn btn-primary">Add project</a>
+
+<!-- Start Students Listing -->
+<table class="table">
+  <thead>
+    <tr>
+      <th><a href="#">#</a></th>
+      <th><a href="#">Name</a></th>
+      <th><a href="#">Author</a></th>
+      <th><a href="#">Members</a></th>
+      <th>Description</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for project in projects %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><a href="#">{{ project.name }}</a></td>
+      <td><a href="#">{{ project.author }}</a></td>
+      <td>
+        {% for member in members %}
+          {% if project.id == member.project.id%}
+            <a href="#">{{ member.user}}</a>
+          {% endif %}
+        {% endfor %}
+      </td>
+      <td><a href="#">{{ project.description }}</a></td>
+      <td>
+        <div class="btn-group">
+          <button type="button" class="btn btn-default dropdown-toggle"
+                  data-toggle="dropdown">Action
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="{% url 'projects_edit' project.id %}">Edit</a></li>
+            <li><a href="{% url 'projects_delete' project.id %}">Delete</a></li>
+          </ul>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% include 'paginations.html' %}
+{% endblock content %}

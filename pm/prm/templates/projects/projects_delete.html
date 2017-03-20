@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block meta_title %}Delete project{% endblock meta_title %}
+
+{% block title %}Delete project{% endblock title %}
+
+
+{% block content %}
+
+<form action="{% url 'projects_delete' project.id %}" method="post" enctype="multipart/form-data" class="form-horizontal">
+	{% csrf_token%}
+
+	<div class="row form-group" >
+		<div class="col-xs-2 col-xs-offset-1">
+			<p>Do you really want to delete the project {{ project }}?</p>
+		</div>
+
+	</div>
+
+	<div class="row form-group" >
+		<div class="col-xs-1 col-xs-offset-1">
+			<input type="submit" value="Delete" name="delete_button" class="btn btn-primary"/>
+		</div>
+		<div class="col-xs-2">
+			<button name="cancel_button" class="btn btn-default">Cancel</button>
+		</div>
+	</div>
+</form>
+
+{% endblock content %}

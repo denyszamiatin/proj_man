@@ -1,0 +1,229 @@
+/* Global Styles */
+h1, h2, h3, h4, h5, h6 {
+font-weight: bold;
+}
+
+.alert {
+/* Ми додали відстань лише зверху елемента: -top */
+margin-top: 10px;
+}
+
+#footer {
+/* задаємо верхню межу елемента: ширина лінії, тип лінії, колір
+лінії */
+border-top: 1px solid #dddddd;
+/* задаємо внутрішню відстань елемента до верхнього краю */
+padding-top: 10px;
+}
+
+#group-selector {
+margin-top: 30px;
+}
+#group-selector select {
+margin: 0;
+width: 85%;
+background-color: #ffffff;
+border: 1px solid #cccccc;
+height: 30px;
+line-height: 30px;
+color: #555555;
+}
+
+.addStudent {
+	max-width: 500px;
+}
+
+/*.main {
+	display: flex;
+    align-items: center;
+}*/
+
+table tbody tr{
+    display: none;
+    opacity: 0;
+}
+
+
+td.day-box,
+th.day-header {
+    padding: 4px !important;
+    vertical-align: middle !important;
+    text-align: center;
+}
+
+.members .dropdown-menu {
+    position: relative;
+    border: none;
+    padding-bottom: 0px;
+}
+
+.members .dropdown-menu li {
+    cursor: pointer;
+}
+
+.members .dropdown-menu li:hover {
+    background-color: Gainsboro;
+}
+
+
+.members .dropdown-menu li input {
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+
+
+/* START LOGIN PAGE */
+
+.card-container.card {
+    max-width: 350px;
+    padding: 40px 40px;
+}
+
+.btn {
+    font-weight: 500;
+    height: 36px;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: pointer;
+}
+
+.form-group {
+	padding-top: 10px;
+}
+
+
+.card {
+    background-color: #F7F7F7;
+    padding: 20px 25px 30px;
+    margin: 0 auto 25px;
+    margin-top: 50px;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+.profile-img-card {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 10px;
+    display: block;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+}
+
+.profile-name-card {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    margin: 10px 0 0;
+    min-height: 1em;
+}
+
+.reauth-email {
+    display: block;
+    color: #404040;
+    line-height: 2;
+    margin-bottom: 10px;
+    font-size: 14px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.form-signin #inputEmail,
+.form-signin #inputPassword {
+    direction: ltr;
+    height: 44px;
+    font-size: 16px;
+
+}
+
+.form-signin input[type=email],
+.form-signin input[type=password],
+.form-signin input[type=text],
+.form-signin button {
+    width: 100%;
+    display: block;
+    margin-bottom: 10px;
+    z-index: 1;
+    position: relative;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+
+}
+
+.form-signin .form-control:focus {
+    border-color: rgb(104, 145, 162);
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgb(104, 145, 162);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgb(104, 145, 162);
+    margin-top: 20px;
+}
+
+.btn-signin {
+    margin-top: 30px;
+}
+
+.btn.btn-signin {
+    background-color: rgb(104, 145, 162);
+    padding: 0px;
+    font-weight: 700;
+    font-size: 14px;
+    height: 36px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    border: none;
+    -o-transition: all 0.218s;
+    -moz-transition: all 0.218s;
+    -webkit-transition: all 0.218s;
+    transition: all 0.218s;
+}
+
+.btn.btn-signin:hover,
+.btn.btn-signin:active,
+.btn.btn-signin:focus {
+    background-color: rgb(61, 157, 179);
+    cursor: pointer;
+}
+
+.forgot-password {
+    color: rgb(104, 145, 162);
+}
+
+.forgot-password:hover,
+.forgot-password:active,
+.forgot-password:focus{
+    color: rgb(12, 97, 33);
+}
+
+
+
+.user_register {
+	max-width: 600px;
+}
+
+.legend {
+	padding:  10px;
+}
+
+
+.wrapper {
+	text-align: left;
+	margin-top: 30px;
+	background-color: rgba(255, 255, 255, 0.8);
+}
+
+
+/* END LOGIN PAGE */

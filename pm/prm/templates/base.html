@@ -1,0 +1,100 @@
+{% load static from staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="keywords" content="">
+  <meta name="description" content="">
+  <!--[if IE 6]>
+  <script type="text/javascript">
+      location.replace("http://browsehappy.com/");
+  </script>
+  <![endif]-->
+
+  <title>Manager Project Services</title>
+
+  <link rel="stylesheet" href="{{ PORTAL_URL }}{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{{ PORTAL_URL }}{% static 'css/main.css' %}">
+
+  {% block extra_css %}{% endblock extra_css %}
+
+  <script src="{{ PORTAL_URL }}{% static 'js/jquery.min.js' %}"></script>
+
+</head>
+<body>
+  <div class="wrapper" id="wrapper">
+    <div class="container">
+
+    <div class="row header" >
+      {% if user.is_authenticated %}
+      <div class="col-xs-12" id="content-column">
+        <div class="col-xs-1 col-xs-offset-10">
+          <span>{{ user.username }}</span>
+        </div>
+        <div class="col-xs-1" >
+          <a href="{% url 'users:auth_logout' %}">Logout</a>
+        </div>
+      </div>
+      {% else %}
+      <div class='col-xs-2 col-xs-offset-10' id='user-toolbar'>
+        <a href="{% url 'users:auth_login' %}">Login</a> |
+        <a href="{% url 'users:registration_register' %}">Register</a>
+      </div>
+      {% endif %}
+    </div>
+
+      <!-- Start Header -->
+    <div class="row">
+      <div class="col-xs-8">
+        <h1>Manager Project Services</h1>
+      </div>
+
+    </div>
+    <!-- End Header -->
+
+
+    <!-- Start SubHeader -->
+      <div class="row" id="sub-header">
+        <div class="col-xs-12">
+          <ul class="nav nav-tabs" role="tablist">
+            <li  {% if request.path == '/' %}class="active"{% endif %}><a href="{% url 'users_list' %}">Users</a></li>
+            <li  {% if '/projects' in request.path %}class="active"{% endif %}><a href="{% url 'projects_list' %}">Projects</a></li>
+           </ul>
+        </div>
+      </div>
+      <!-- End SubHeader -->
+
+    <!-- Start Content Columns -->
+    <div class="row">
+      <div class="col-xs-12">
+
+       {% block status_message %}
+        {% if request.GET.status_message %}
+            <div class="alert alert-warning" role="alert">{{ request.GET.status_message }}</div>
+        {% endif %}
+        {% endblock %}
+
+
+        <h2>{% block title %}{% endblock title %}</h2>
+        {% block content %}{% endblock content %}
+        
+      </div>
+    </div>
+    <!-- End Content Columns -->
+
+  </div>
+  <!-- End Container -->
+  </div>
+
+
+  <script src="{{ PORTAL_URL }}{% static 'js/bootstrap.min.js' %}"></script>
+  <script src="{{ PORTAL_URL }}{% static 'js/main.js' %}"></script>
+
+  {% block extra_js %}{% endblock extra_js %}
+
+</body>
+</html>

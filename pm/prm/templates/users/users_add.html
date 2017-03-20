@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+
+{% block meta_title %}Add User{% endblock meta_title %}
+
+
+{% block status_message %}
+{% if errors %}
+	<div class="alert alert-warning" role="alert"> Please correct the following errors </div>
+{% endif %}
+{% endblock status_message %}
+
+
+{% block title %}Add User{% endblock title %}
+
+{% block content %}
+
+<form action="{% url 'users_add' %}" method="post" enctype="multipart/form-data" class="form-horizontal">
+	{% csrf_token%}
+	<div class="form-group {% if errors.login %}has-error{% endif%}" >
+		<label class="col-xs-2 control-label" for="login">Login*</label>
+		<div class="col-xs-3">
+			<input type="text" class="form-control" id="login" name="login" value="{{ request.POST.login }}" placeholder=""/>
+			<span class="help-block">{{ errors.login }}</span>
+		</div>
+	</div>
+
+	<div class="form-group {% if errors.email %}has-error{% endif%}" >
+		<label class="col-xs-2 control-label" for="email">Email*</label>
+		<div class="col-xs-3">
+			<input type="email" class="form-control" id="email" name="email" value="{{ request.POST.email }}" placeholder=""/>
+			<span class="help-block">{{ errors.email }}</span>
+		</div>
+	</div>
+
+	<div class="form-group {% if errors.password  %}has-error{% endif%}" >
+		<label class="col-xs-2 control-label" for="password">Password*</label>
+		<div class="col-xs-3">
+			<input type="password" class="form-control" id="password" name="password" value="{{ request.POST.password }}" placeholder=""/>
+			<span class="help-block">{{ errors.password }}</span>
+		</div>
+	</div>
+
+	<div class="form-group {% if errors.c_password %}has-error{% endif%}" >
+		<label class="col-xs-2 control-label" for="c_password">Confirm password*</label>
+		<div class="col-xs-3">
+			<input type="password" class="form-control" id="c_password" name="c_password" value="{{ request.POST.c_password }}" placeholder=""/>
+			<span class="help-block">{{ errors.c_password }}</span>
+		</div>
+	</div>
+
+
+	<div class="row form-group" >
+		<div class="col-xs-1 col-xs-offset-2">
+			<input type="submit" value="Add" name="add_button" class="btn btn-primary"/>
+		</div>
+		<div class="col-xs-2">
+			<button name="cancel_button" class="btn btn-default">Cancel</button>
+		</div>
+	</div>
+</form>
+{% endblock content %}
